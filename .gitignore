@@ -1,0 +1,35 @@
+# .gitignore — Git Exclusion Rules for AI-->TO-->YOU Technologies
+
+# Environment Secrets & Local Configs
+.env
+.env.local
+.env.production
+.env.staging
+
+# Django Database & Static Build Directory
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# Python Compiled Bytecode & Caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.slugcache
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE & OS Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

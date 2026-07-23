@@ -2,9 +2,9 @@
  * AI-->TO-->YOU Technologies — Agency Interactive JavaScript Engine
  * 
  * Powers:
- * 1. Embedded Floating AI Consultant Chat Drawer & AJAX conversation pipeline.
+ * 1. Groq-Powered Virtual AI Consultant Chat Drawer (/api/consultant-chat/).
  * 2. Asynchronous Contact Form AJAX submission with validation & alert handling.
- * 3. Anti-Gravity card elevation, micro-interactions, and smooth scrolling.
+ * 3. Anti-Gravity card elevation, 3D micro-interactions, and smooth scrolling.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,7 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * ── 1. EMBEDDED AI CONSULTANT CHAT DRAWER ──────────────────────────────────
+ * Global Chat Session History array for conversation context
+ */
+let sessionChatHistory = [];
+
+/**
+ * ── 1. EMBEDDED GROQ AI CONSULTANT CHAT DRAWER ─────────────────────────────
  */
 function initAIConsultantDrawer() {
     const container = document.getElementById('ai-chat-drawer-container');
@@ -45,9 +50,9 @@ function initAIConsultantDrawer() {
                     </div>
                     <div>
                         <h4 class="text-sm font-bold text-slate-100 font-['Outfit']">AI--&gt;TO--&gt;YOU Consultant</h4>
-                        <div class="flex items-center space-x-1.5 text-[10px] text-emerald-400">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span>Online &bull; Virtual Lead Agent</span>
+                        <div class="flex items-center space-x-1.5 text-[10px] text-cyan-400">
+                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                            <span class="font-mono">Groq Llama-3.3 70B &bull; Real-Time</span>
                         </div>
                     </div>
                 </div>
@@ -73,14 +78,14 @@ function initAIConsultantDrawer() {
                         <i class="fa-solid fa-robot"></i>
                     </div>
                     <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-slate-800 text-slate-200 leading-relaxed max-w-[85%]">
-                        Welcome to <strong>AI--&gt;TO--&gt;YOU Technologies</strong>! I am your AI Sales &amp; Technical Consultant. Ask me anything about custom NLP chatbots, candidate screening engines, acoustic deep learning, or scheduling a consultation with Dean Juan D'Cunha.
+                        Welcome to <strong>AI--&gt;TO--&gt;YOU Technologies</strong>! Powered by our Groq AI engine (Llama 3.3 70B). Ask me about custom university NLP engines, HR screening algorithms, acoustic signal analysis, or scheduling a consultation with founder <strong>Dean Juan D'Cunha</strong>.
                     </div>
                 </div>
             </div>
 
             <!-- Input Area -->
             <form id="ai-chat-form" class="p-3 bg-slate-950/90 border-t border-slate-800/80 flex items-center space-x-2">
-                <input type="text" id="ai-chat-input" placeholder="Type your query here..." 
+                <input type="text" id="ai-chat-input" placeholder="Ask AI-TO-YOU Consultant..." autocomplete="off"
                        class="flex-grow px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-cyan-400 transition-colors">
                 <button type="submit" id="ai-chat-send-btn" class="w-9 h-9 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 flex items-center justify-center shrink-0 transition-colors shadow-lg shadow-cyan-500/20">
                     <i class="fa-solid fa-paper-plane text-xs"></i>
@@ -130,44 +135,59 @@ function initAIConsultantDrawer() {
         });
     });
 
-    // Form submission
+    // Form submission (Enter key or Submit button click)
     chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const msg = chatInput.value.strip ? chatInput.value.strip() : chatInput.value.trim();
+        const msg = chatInput.value ? chatInput.value.trim() : '';
         if (!msg) return;
         sendChatMessage(msg);
     });
 
+    /**
+     * Sends message asynchronously to Groq endpoint /api/consultant-chat/
+     */
     async function sendChatMessage(messageText) {
-        // Append User Bubble
+        // 1. Instantly display user message bubble in chat drawer
         appendUserBubble(messageText);
         chatInput.value = '';
 
-        // Append Loading Indicator
-        const loadingId = appendLoadingBubble();
+        // Add user message to session chat history
+        sessionChatHistory.push({ role: 'user', content: messageText });
+
+        // 2. Display glowing "AI-TO-YOU is typing..." indicator
+        const typingIndicatorId = appendTypingIndicator();
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
-            const response = await fetch('/api/ai-chat/', {
+            // 3. Execute fetch POST request to /api/consultant-chat/
+            const response = await fetch('/api/consultant-chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken') || ''
                 },
-                body: JSON.stringify({ question: messageText })
+                body: JSON.stringify({
+                    message: messageText,
+                    chat_history: sessionChatHistory
+                })
             });
 
             const result = await response.json();
-            removeBubble(loadingId);
 
-            if (result.ok && result.data) {
-                appendAIBubble(result.data.answer, result.data.suggested_actions);
+            // 4. Remove typing indicator
+            removeBubble(typingIndicatorId);
+
+            if (result.ok && result.reply) {
+                const aiReply = result.reply;
+                sessionChatHistory.push({ role: 'assistant', content: aiReply });
+                const suggestions = result.data?.suggested_actions || [];
+                appendAIBubble(aiReply, suggestions);
             } else {
-                appendAIBubble("Apologies, I encountered a temporary connection glitch. Please feel free to resubmit your question or contact Dean Juan D'Cunha directly via the contact form.");
+                appendAIBubble("Apologies, I encountered a temporary connection glitch. Please submit your question again or contact Founder Dean Juan D'Cunha via the inquiry form.");
             }
         } catch (err) {
-            removeBubble(loadingId);
-            appendAIBubble("Connection error. Please check your network connection and try again.");
+            removeBubble(typingIndicatorId);
+            appendAIBubble("Network error. Please check your connection and try again.");
         }
 
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -175,9 +195,9 @@ function initAIConsultantDrawer() {
 
     function appendUserBubble(text) {
         const div = document.createElement('div');
-        div.className = 'flex items-start justify-end space-x-2.5';
+        div.className = 'flex items-start justify-end space-x-2.5 animate-fade-in';
         div.innerHTML = `
-            <div class="p-3.5 rounded-2xl rounded-tr-none bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-slate-100 leading-relaxed max-w-[85%]">
+            <div class="p-3.5 rounded-2xl rounded-tr-none bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-slate-100 leading-relaxed max-w-[85%] shadow-lg">
                 ${escapeHTML(text)}
             </div>
             <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs shrink-0 mt-1">
@@ -187,17 +207,18 @@ function initAIConsultantDrawer() {
         chatMessages.appendChild(div);
     }
 
-    function appendLoadingBubble() {
-        const id = 'loading-' + Date.now();
+    function appendTypingIndicator() {
+        const id = 'typing-' + Date.now();
         const div = document.createElement('div');
         div.id = id;
-        div.className = 'flex items-start space-x-2.5';
+        div.className = 'flex items-start space-x-2.5 animate-fade-in';
         div.innerHTML = `
             <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs shrink-0 mt-1">
-                <i class="fa-solid fa-robot animate-spin"></i>
+                <i class="fa-solid fa-brain animate-pulse"></i>
             </div>
-            <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-slate-800 text-slate-400 italic">
-                AI Agent thinking...
+            <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-cyan-500/30 text-cyan-300 text-xs flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                <span class="font-medium tracking-wide">AI-TO-YOU is typing...</span>
             </div>
         `;
         chatMessages.appendChild(div);
@@ -211,9 +232,9 @@ function initAIConsultantDrawer() {
 
     function appendAIBubble(rawMarkdownText, suggestions = []) {
         const div = document.createElement('div');
-        div.className = 'flex items-start space-x-2.5';
+        div.className = 'flex items-start space-x-2.5 animate-fade-in';
 
-        // Basic Markdown Formatter (Bold, Bullet Points, Newlines)
+        // Markdown Formatter (Bold, Bullet Points, Newlines)
         let formatted = escapeHTML(rawMarkdownText)
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/• (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>')
@@ -271,7 +292,6 @@ function initContactFormAJAX() {
             message: document.getElementById('message').value.trim()
         };
 
-        // Loading state
         submitBtn.disabled = true;
         const originalBtnHTML = submitBtn.innerHTML;
         submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> <span>Submitting Inquiry...</span>`;
@@ -310,7 +330,6 @@ function initContactFormAJAX() {
  * ── 3. ANTI-GRAVITY UI INTERACTIONS ──────────────────────────────────────
  */
 function initAntiGravityInteractions() {
-    // Parallax card tilt on hover
     document.querySelectorAll('.glass-card-glow').forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
@@ -330,9 +349,6 @@ function initAntiGravityInteractions() {
     });
 }
 
-/**
- * Helper Utility: Get Cookie Value
- */
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -348,9 +364,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-/**
- * Helper Utility: Escape HTML
- */
 function escapeHTML(str) {
     if (!str) return '';
     return str.replace(/[&<>"']/g, match => {

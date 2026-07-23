@@ -2,10 +2,11 @@
 AI-->TO-->YOU (AI-TO-YOU Technologies) — Views & API Controllers
 
 Renders corporate pages dynamically from Django database models and provides AJAX endpoints
-for client inquiries and the embedded AI Virtual Consultant.
+for client inquiries and the embedded Groq AI Virtual Consultant.
 """
 
 import json
+import logging
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST, require_GET
@@ -13,6 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import ServiceOffering, PortfolioProject, ClientInquiry
 from .ai_consultant import AIToYouConsultant
+
+logger = logging.getLogger(__name__)
 
 
 # ── Page Views ───────────────────────────────────────────────────────────────
@@ -62,6 +65,46 @@ def portfolio_page(request):
 
 @csrf_exempt
 @require_POST
+def chat_api_view(request):
+    """
+    Groq AI Virtual Consultant endpoint for real-time conversation.
+    Accepts JSON POST with:
+    - 'message' or 'user_message': string
+    - 'chat_history': optional list of past messages [{"role": "user"|"assistant", "content": "..."}]
+
+    Returns clean JSON payload: {"reply": "...", "ok": True}
+    """
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, TypeError):
+        return JsonResponse({"ok": False, "error": "Invalid JSON payload provided."}, status=400)
+
+    user_message = data.get("message") or data.get("user_message") or data.get("question", "")
+    user_message = str(user_message).strip()
+
+    if not user_message:
+        return JsonResponse({"ok": False, "error": "Please provide a valid question or message."}, status=422)
+
+    chat_history = data.get("chat_history", [])
+    if not isinstance(chat_history, list):
+        chat_history = []
+
+    consultant = AIToYouConsultant()
+    reply_text = consultant.get_response(user_message=user_message, chat_history=chat_history)
+
+    return JsonResponse({
+        "ok": True,
+        "reply": reply_text,
+        "data": {
+            "answer": reply_text,
+            "category": "Groq AI Consultant",
+            "suggested_actions": ["Book Consultation", "Explore Services", "Contact Founder"],
+        }
+    })
+
+
+@csrf_exempt
+@require_POST
 def api_contact(request):
     """
     Handles corporate contact form submissions asynchronously via AJAX.
@@ -69,14 +112,14 @@ def api_contact(request):
     """
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
+    except (json.JSONDecodeError, TypeError):
         return JsonResponse({"ok": False, "error": "Invalid JSON format provided."}, status=400)
 
-    full_name = data.get("full_name", "").strip()
-    organization = data.get("organization", "").strip()
-    email = data.get("email", "").strip()
-    phone = data.get("phone", "").strip()
-    message = data.get("message", "").strip()
+    full_name = str(data.get("full_name", "")).strip()
+    organization = str(data.get("organization", "")).strip()
+    email = str(data.get("email", "")).strip()
+    phone = str(data.get("phone", "")).strip()
+    message = str(data.get("message", "")).strip()
 
     missing = []
     if not full_name:
@@ -114,16 +157,6 @@ def api_contact(request):
 @require_POST
 def api_ai_chat(request):
     """
-    Handles interactive user queries for the embedded AI-TO-YOU Virtual Consultant.
-    Accepts JSON body with 'question', invokes AIToYouConsultant, and returns JSON.
+    Backwards-compatible wrapper delegating to chat_api_view.
     """
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"ok": False, "error": "Invalid payload format."}, status=400)
-
-    question = data.get("question", "").strip()
-    consultant = AIToYouConsultant()
-    result = consultant.respond(question)
-
-    return JsonResponse({"ok": True, "data": result})
+    return chat_api_view(request)

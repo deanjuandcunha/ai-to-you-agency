@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -5,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ page_title|default:"AI-->TO-->YOU Technologies" }}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{{ meta_description|default:'AI-->TO-->YOU Technologies — Custom AI, NLP, HR Screening, Signal Analysis & Web Engineering Studio.' }}{% endblock %}">
+
+    <!-- Browser Tab Favicon Logo -->
+    <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
+
 
     <!-- Tailwind CSS (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -155,8 +162,8 @@
             <!-- Logo -->
             <a href="{% url 'core:home' %}" class="group flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-purple-600 to-indigo-600 p-[1.5px] shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
-                    <div class="w-full h-full bg-slate-950 rounded-[10.5px] flex items-center justify-center">
-                        <i class="fa-solid fa-brain text-cyan-400 text-lg group-hover:scale-110 transition-transform"></i>
+                    <div class="w-full h-full bg-slate-950 rounded-[10.5px] flex items-center justify-center p-1.5 overflow-hidden">
+                        <img src="{% static 'img/favicon.png' %}" alt="AI-->TO-->YOU Logo" class="w-full h-full object-contain group-hover:scale-110 transition-transform">
                     </div>
                 </div>
                 <div class="flex flex-col">

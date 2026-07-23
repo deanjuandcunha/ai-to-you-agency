@@ -146,14 +146,22 @@ def update_inquiry_status_view(request, pk):
     inquiry.status = new_status
     inquiry.save(update_fields=["status"])
 
+    status_counts = {
+        "New": ClientInquiry.objects.filter(status="new").count(),
+        "Contacted": ClientInquiry.objects.filter(status="contacted").count(),
+        "Closed": ClientInquiry.objects.filter(status="closed").count(),
+    }
+
     return JsonResponse({
         "ok": True,
         "inquiry_id": inquiry.id,
         "new_status": inquiry.status,
         "status_display": inquiry.get_status_display(),
-        "unread_count": ClientInquiry.objects.filter(status="new").count(),
+        "unread_count": status_counts["New"],
+        "status_counts": status_counts,
         "message": f"Inquiry #{inquiry.id} status updated to {inquiry.get_status_display()}.",
     })
+
 
 
 @superuser_required

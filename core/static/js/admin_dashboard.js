@@ -3,10 +3,12 @@
  * 
  * Handles:
  * 1. Chart.js rendering for AI Query Volume & Inquiry Status Breakdown
- * 2. Asynchronous status toggle AJAX requests for Client Inquiries
+ * 2. Real-time AJAX status toggle & DOM button re-rendering for Client Inquiries
  * 3. Dynamic search & client-side filtering for inquiry records and live query feed
  * 4. Toast notifications & interactive UI feedback
  */
+
+let statusChartInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
@@ -62,12 +64,10 @@ function showToast(message, type = 'success') {
 
     container.appendChild(toast);
 
-    // Animate in
     requestAnimationFrame(() => {
         toast.classList.remove('translate-y-4', 'opacity-0');
     });
 
-    // Dismiss after 3.5 seconds
     setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
@@ -78,7 +78,7 @@ function showToast(message, type = 'success') {
  * ── 1. Chart.js Initialization
  */
 function initCharts() {
-    // 1. AI Query Volume Chart (Bar/Area Hybrid)
+    // 1. AI Query Volume Chart (Line/Area Hybrid)
     const aiCanvas = document.getElementById('aiQueryChart');
     if (aiCanvas && window.Chart) {
         const labels = JSON.parse(aiCanvas.dataset.labels || '[]');
@@ -145,7 +145,7 @@ function initCharts() {
         const labels = JSON.parse(statusCanvas.dataset.labels || '[]');
         const data = JSON.parse(statusCanvas.dataset.values || '[]');
 
-        new Chart(statusCanvas.getContext('2d'), {
+        statusChartInstance = new Chart(statusCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -191,74 +191,96 @@ function initCharts() {
 }
 
 /**
- * ── 2. Real-Time Inquiry Status AJAX Toggle Handler
+ * ── 2. Real-Time Inquiry Status Event Delegation Handler
  */
 function initStatusUpdateHandlers() {
-    document.querySelectorAll('.js-status-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            const inquiryId = btn.dataset.inquiryId;
-            const targetStatus = btn.dataset.targetStatus;
-            const updateUrl = btn.dataset.updateUrl;
+    const tableBody = document.getElementById('inquiries-table-body');
+    if (!tableBody) return;
 
-            if (!inquiryId || !targetStatus || !updateUrl) return;
+    tableBody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.js-status-btn');
+        if (!btn) return;
 
-            // Visual feedback on clicked button
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i>`;
-            btn.disabled = true;
+        e.preventDefault();
 
-            try {
-                const response = await fetch(updateUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrfToken(),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ status: targetStatus })
-                });
+        const inquiryId = btn.dataset.inquiryId;
+        const targetStatus = btn.dataset.targetStatus;
+        const updateUrl = btn.dataset.updateUrl;
 
-                const data = await response.json();
+        if (!inquiryId || !targetStatus || !updateUrl) return;
 
-                if (response.ok && data.ok) {
-                    // Update badge element in the table row
-                    const row = document.getElementById(`inquiry-row-${inquiryId}`);
-                    if (row) {
-                        const badgeContainer = row.querySelector('.js-status-badge');
-                        if (badgeContainer) {
-                            badgeContainer.className = getStatusBadgeClasses(data.new_status);
-                            badgeContainer.textContent = data.status_display;
-                        }
+        // Visual feedback during request
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i>`;
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(updateUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ status: targetStatus })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.ok) {
+                const row = document.getElementById(`inquiry-row-${inquiryId}`);
+                if (row) {
+                    // 1. Update Status Badge
+                    const badgeContainer = row.querySelector('.js-status-badge');
+                    if (badgeContainer) {
+                        badgeContainer.className = getStatusBadgeClasses(data.new_status);
+                        badgeContainer.innerHTML = getStatusBadgeInnerHtml(data.new_status, data.status_display);
                     }
 
-                    // Update Top Unread Metric Card if element exists
-                    const unreadCard = document.getElementById('metric-unread-count');
-                    if (unreadCard && data.unread_count !== undefined) {
-                        unreadCard.textContent = data.unread_count;
+                    // 2. Re-render Quick Action Buttons
+                    const actionContainer = row.querySelector('.js-action-container');
+                    if (actionContainer) {
+                        actionContainer.innerHTML = generateQuickActionButtonsHtml(inquiryId, data.new_status, updateUrl);
                     }
-
-                    showToast(`Inquiry #${inquiryId} updated to ${data.status_display}`, 'success');
-                } else {
-                    showToast(data.error || 'Failed to update status', 'error');
                 }
-            } catch (err) {
-                console.error('Error updating inquiry status:', err);
-                showToast('Network error while updating status', 'error');
-            } finally {
+
+                // 3. Update Top Unread Metric Card
+                const unreadCard = document.getElementById('metric-unread-count');
+                if (unreadCard && data.unread_count !== undefined) {
+                    unreadCard.textContent = data.unread_count;
+                }
+
+                // 4. Update Doughnut Chart in real-time if chart instance exists
+                if (statusChartInstance && data.status_counts) {
+                    statusChartInstance.data.datasets[0].data = [
+                        data.status_counts.New || 0,
+                        data.status_counts.Contacted || 0,
+                        data.status_counts.Closed || 0
+                    ];
+                    statusChartInstance.update();
+                }
+
+                showToast(`Inquiry #${inquiryId} marked as ${data.status_display}`, 'success');
+            } else {
+                showToast(data.error || 'Failed to update status', 'error');
+            }
+        } catch (err) {
+            console.error('Error updating inquiry status:', err);
+            showToast('Network error while updating status', 'error');
+        } finally {
+            if (btn && document.body.contains(btn)) {
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
-        });
+        }
     });
 }
 
 /**
- * ── Helper: Get Status Badge Styling CSS Classes
+ * ── Helper: Get Status Badge CSS Classes
  */
 function getStatusBadgeClasses(status) {
-    const base = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border shadow-sm transition-all ";
+    const base = "js-status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border shadow-sm transition-all ";
     switch (status) {
         case 'new':
             return base + "bg-cyan-500/10 text-cyan-300 border-cyan-500/30 shadow-cyan-500/10 animate-pulse";
@@ -269,6 +291,67 @@ function getStatusBadgeClasses(status) {
         default:
             return base + "bg-slate-700/30 text-slate-400 border-slate-700/50";
     }
+}
+
+/**
+ * ── Helper: Get Status Badge Inner HTML
+ */
+function getStatusBadgeInnerHtml(status, statusDisplay) {
+    let iconHtml = '<i class="fa-solid fa-circle text-[8px]"></i>';
+    if (status === 'contacted') {
+        iconHtml = '<i class="fa-solid fa-user-check text-[8px]"></i>';
+    } else if (status === 'closed') {
+        iconHtml = '<i class="fa-solid fa-check-double text-[8px]"></i>';
+    }
+    return `${iconHtml} ${statusDisplay}`;
+}
+
+/**
+ * ── Helper: Dynamic HTML Generator for Action Buttons
+ */
+function generateQuickActionButtonsHtml(inquiryId, status, updateUrl) {
+    let html = '';
+
+    // Contacted Button
+    if (status !== 'contacted') {
+        html += `
+            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30 transition-all"
+                    data-inquiry-id="${inquiryId}"
+                    data-target-status="contacted"
+                    data-update-url="${updateUrl}"
+                    title="Mark as Contacted">
+                <i class="fa-solid fa-paper-plane mr-1"></i> Contacted
+            </button>
+        `;
+    }
+
+    // Close Button
+    if (status !== 'closed') {
+        html += `
+            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/30 transition-all"
+                    data-inquiry-id="${inquiryId}"
+                    data-target-status="closed"
+                    data-update-url="${updateUrl}"
+                    title="Mark as Closed">
+                <i class="fa-solid fa-check mr-1"></i> Close
+            </button>
+        `;
+    }
+
+    // Reset to New Button
+    if (status !== 'new') {
+        html += `
+            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-all"
+                    data-inquiry-id="${inquiryId}"
+                    data-target-status="new"
+                    data-update-url="${updateUrl}"
+                    title="Reset to New">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+        `;
+    }
+
+    return html;
 }
 
 /**

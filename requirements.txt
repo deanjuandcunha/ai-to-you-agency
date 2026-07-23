@@ -1,6 +1,6 @@
 # requirements.txt — Production Dependencies for AI-->TO-->YOU Technologies
 asgiref==3.12.1
-Django==6.0.7
+Django>=5.1,<6.0
 gunicorn>=21.2.0
 groq>=0.9.0
 python-dotenv>=1.0.0

@@ -3,7 +3,7 @@ AI-->TO-->YOU (AI-TO-YOU Technologies) — Django Admin Config
 """
 
 from django.contrib import admin
-from .models import ServiceOffering, PortfolioProject, ClientInquiry
+from .models import ServiceOffering, PortfolioProject, ClientInquiry, AIChatLog
 
 
 @admin.register(ServiceOffering)
@@ -22,7 +22,20 @@ class PortfolioProjectAdmin(admin.ModelAdmin):
 
 @admin.register(ClientInquiry)
 class ClientInquiryAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "organization", "email", "phone", "timestamp")
-    list_filter = ("timestamp",)
+    list_display = ("full_name", "organization", "email", "status", "timestamp")
+    list_filter = ("status", "timestamp")
     search_fields = ("full_name", "organization", "email", "message")
     readonly_fields = ("timestamp",)
+
+
+@admin.register(AIChatLog)
+class AIChatLogAdmin(admin.ModelAdmin):
+    list_display = ("timestamp", "response_time_ms", "user_query_snippet")
+    list_filter = ("timestamp",)
+    search_fields = ("user_query", "ai_response")
+    readonly_fields = ("timestamp", "response_time_ms", "user_query", "ai_response")
+
+    def user_query_snippet(self, obj):
+        return obj.user_query[:60] + "..." if len(obj.user_query) > 60 else obj.user_query
+    user_query_snippet.short_description = "User Query"
+

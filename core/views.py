@@ -7,13 +7,15 @@ for client inquiries and the embedded Groq AI Virtual Consultant.
 
 import json
 import logging
+import time
+
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
 
-from .models import ServiceOffering, PortfolioProject, ClientInquiry
 from .ai_consultant import AIToYouConsultant
+from .models import AIChatLog, ClientInquiry, PortfolioProject, ServiceOffering
 
 logger = logging.getLogger(__name__)
 
@@ -89,12 +91,25 @@ def chat_api_view(request):
     if not isinstance(chat_history, list):
         chat_history = []
 
+    start_time = time.time()
     consultant = AIToYouConsultant()
     reply_text = consultant.get_response(user_message=user_message, chat_history=chat_history)
+    elapsed_ms = int((time.time() - start_time) * 1000)
+
+    # Save to AIChatLog audit history
+    try:
+        AIChatLog.objects.create(
+            user_query=user_message,
+            ai_response=reply_text,
+            response_time_ms=elapsed_ms,
+        )
+    except Exception as e:
+        logger.warning(f"Failed to record AIChatLog: {e}")
 
     return JsonResponse({
         "ok": True,
         "reply": reply_text,
+        "response_time_ms": elapsed_ms,
         "data": {
             "answer": reply_text,
             "category": "Groq AI Consultant",

@@ -1,0 +1,233 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title|default:"Executive Command Center | AI-->TO-->YOU Admin" }}{% endblock %}</title>
+    
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: '#0b0f19',
+                        darkcard: 'rgba(15, 23, 42, 0.75)',
+                        cyanaccent: '#00f2fe',
+                        purpleaccent: '#7f00ff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow-cyan': '0 0 25px -5px rgba(0, 242, 254, 0.3)',
+                        'glow-purple': '0 0 25px -5px rgba(127, 0, 255, 0.3)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Anti-Gravity Dark Ambient Aesthetic */
+        body {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(127, 0, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+        }
+
+        /* Glassmorphism utility card */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-panel-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(0, 242, 254, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.3);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.6);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-black flex flex-col md:flex-row">
+
+    <!-- ── 1. Glassmorphic Sidebar ────────────────────────────────────────────── -->
+    <aside class="w-full md:w-72 glass-panel border-r border-slate-800/80 flex flex-col justify-between p-6 z-30 shrink-0 min-h-screen">
+        <div>
+            <!-- Sidebar Header / Logo -->
+            <div class="flex items-center gap-3 pb-8 mb-6 border-b border-slate-800/80">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-glow-cyan">
+                    <i class="fa-solid fa-rocket text-slate-950 font-black text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-extrabold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-400">
+                        AI<span class="text-white">--&gt;</span>TO<span class="text-white">--&gt;</span>YOU
+                    </h1>
+                    <p class="text-[10px] tracking-wider uppercase font-semibold text-cyan-400/80">Executive Control Panel</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-2">
+                <a href="{% url 'core:agency_admin_dashboard' %}" 
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-gradient-to-r from-cyan-500/20 to-purple-500/10 text-cyan-300 border border-cyan-500/30 shadow-glow-cyan">
+                    <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                    <span>Dashboard Overview</span>
+                </a>
+
+                <a href="#inquiries-section" 
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
+                    <i class="fa-solid fa-inbox text-purple-400"></i>
+                    <span>Client Inquiries</span>
+                    {% if unread_inquiries %}
+                    <span class="ml-auto bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded-full font-bold border border-cyan-500/40">
+                        {{ unread_inquiries }}
+                    </span>
+                    {% endif %}
+                </a>
+
+                <a href="#ai-analytics-section" 
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
+                    <i class="fa-solid fa-brain text-pink-400"></i>
+                    <span>AI Analytics & Logs</span>
+                </a>
+
+                <a href="/admin/core/portfolioproject/" target="_blank"
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
+                    <i class="fa-solid fa-cubes text-emerald-400"></i>
+                    <span>Portfolio Manager</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto text-slate-500"></i>
+                </a>
+
+                <div class="pt-4 border-t border-slate-800/60 my-4"></div>
+
+                <a href="{% url 'core:home' %}" target="_blank"
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
+                    <i class="fa-solid fa-globe text-cyan-400"></i>
+                    <span>View Public Website</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto text-slate-500"></i>
+                </a>
+            </nav>
+        </div>
+
+        <!-- System & Security Info -->
+        <div class="pt-6 border-t border-slate-800/80">
+            <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
+                <span class="flex items-center gap-2 text-emerald-400 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    Groq AI Active
+                </span>
+                <span class="text-slate-500">v2.4 Pro</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── 2. Main Content Area ────────────────────────────────────────────────── -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+        
+        <!-- Top Bar -->
+        <header class="glass-panel sticky top-0 z-20 px-6 py-4 border-b border-slate-800/80 flex items-center justify-between gap-4">
+            
+            <!-- Quick Search -->
+            <div class="relative flex-1 max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+                <input type="text" 
+                       id="admin-quick-search"
+                       placeholder="Quick search client inquiries, queries..." 
+                       class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl pl-11 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/50 transition-all">
+            </div>
+
+            <!-- Admin Profile Header Controls -->
+            <div class="flex items-center gap-4">
+                <a href="{% url 'core:agency_admin_export_csv' %}" 
+                   class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all shadow-sm">
+                    <i class="fa-solid fa-download"></i>
+                    Export CSV Report
+                </a>
+
+                <div class="h-6 w-px bg-slate-800 hidden sm:block"></div>
+
+                <!-- Admin Profile Dropdown Badge -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center font-bold text-slate-950 shadow-md">
+                        {{ user.username|default:"A"|slice:":1"|upper }}
+                    </div>
+                    <div class="hidden md:block text-left">
+                        <div class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                            {{ user.username|default:"Superuser Admin" }}
+                            <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-1.5 py-0.5 rounded font-mono border border-cyan-500/30">SUPERUSER</span>
+                        </div>
+                        <div class="text-[11px] text-slate-500">Executive Access</div>
+                    </div>
+                    <a href="/admin/logout/" title="Logout" class="text-slate-500 hover:text-rose-400 transition-colors ml-2 text-sm">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Body Page Content -->
+        <div class="p-6 md:p-8 space-y-8 flex-1">
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <footer class="px-8 py-4 border-t border-slate-800/60 text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div>
+                &copy; {% now "Y" %} <span class="text-slate-400 font-semibold">AI--&gt;TO--&gt;YOU Technologies</span>. All Rights Reserved.
+            </div>
+            <div class="flex items-center gap-4 text-slate-500">
+                <span>Anti-Gravity OS</span>
+                <span>&bull;</span>
+                <span class="text-cyan-400">Dean Juan D'Cunha</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Core Scripts -->
+    <script src="{% static 'js/admin_dashboard.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

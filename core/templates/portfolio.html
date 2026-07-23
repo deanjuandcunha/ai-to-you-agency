@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Case Studies & Portfolio | AI-->TO-->YOU Technologies{% endblock %}
+
+{% block content %}
+<section class="py-16 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Page Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h1 class="text-xs font-semibold uppercase tracking-widest text-cyan-400 font-mono">Proven Engineering &amp; AI Deployments</h1>
+            <h2 class="text-4xl sm:text-6xl font-extrabold font-['Outfit'] tracking-tight">
+                Case Study Portfolio
+            </h2>
+            <p class="text-slate-300 text-base leading-relaxed">
+                Explore real-world case studies built by Founder Dean Juan D'Cunha &amp; AI--&gt;TO--&gt;YOU Technologies across university NLP engines, HR screening algorithms, acoustic deep learning, and smart-city portals.
+            </p>
+        </div>
+
+        <!-- Filter Tags -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mb-12">
+            <a href="{% url 'core:portfolio' %}" 
+               class="px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all {% if not current_category %}bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/25{% else %}glass-panel text-slate-300 hover:text-cyan-400{% endif %}">
+                All Projects
+            </a>
+            {% for code, label in categories %}
+            <a href="{% url 'core:portfolio' %}?category={{ code }}" 
+               class="px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all {% if current_category == code %}bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/25{% else %}glass-panel text-slate-300 hover:text-cyan-400{% endif %}">
+                {{ label }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {% for project in projects %}
+            <div class="glass-panel glass-card-glow p-8 rounded-3xl flex flex-col justify-between space-y-6 relative border border-slate-800">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-purple-300 bg-purple-950/60 px-3 py-1 rounded-full border border-purple-500/30">
+                            {{ project.category_label }}
+                        </span>
+                        <span class="text-xs text-slate-500 font-mono">Case Study</span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold font-['Outfit'] text-slate-100">
+                        {{ project.title }}
+                    </h3>
+
+                    <p class="text-sm text-slate-300 leading-relaxed font-light">
+                        {{ project.summary }}
+                    </p>
+                </div>
+
+                <div class="space-y-4 pt-4 border-t border-slate-800/80">
+                    <div class="p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/20">
+                        <div class="text-[10px] uppercase tracking-widest text-slate-400 font-mono">Proven KPI / Metric</div>
+                        <div class="text-sm font-bold text-emerald-400 flex items-center space-x-2 mt-1">
+                            <i class="fa-solid fa-chart-line text-xs"></i>
+                            <span>{{ project.impact_metric }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400">
+                        <span class="font-mono text-cyan-400/90">{{ project.tech_used }}</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-2 text-center py-12 glass-panel rounded-3xl">
+                <p class="text-slate-400">No projects found in this category.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</section>
+{% endblock %}

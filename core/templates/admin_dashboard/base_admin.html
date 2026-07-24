@@ -4,15 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Executive Analytics & Command Center | AI-TO-YOU Technologies{% endblock %}</title>
+
     <!-- Browser Tab Favicon Logo -->
     <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
     <link rel="apple-touch-icon" href="{% static 'img/favicon.png' %}">
 
-    <!-- Google Fonts: Outfit & Inter -->
+    <!-- Google Fonts: Outfit, Inter, Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -27,17 +29,11 @@
                     colors: {
                         midnight: '#0b0f19',
                         darkcard: 'rgba(15, 23, 42, 0.75)',
-                        cyanaccent: '#00f2fe',
-                        purpleaccent: '#7f00ff',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         heading: ['Outfit', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'glow-cyan': '0 0 25px -5px rgba(0, 242, 254, 0.3)',
-                        'glow-purple': '0 0 25px -5px rgba(127, 0, 255, 0.3)',
-                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                        mono: ['Fira Code', 'monospace'],
                     }
                 }
             }
@@ -51,11 +47,6 @@
         /* Anti-Gravity Dark Ambient Aesthetic */
         body {
             background-color: #0b0f19;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(127, 0, 255, 0.1) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
-            background-attachment: fixed;
             color: #f1f5f9;
         }
 
@@ -68,12 +59,25 @@
         }
 
         .glass-panel-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .glass-panel-hover:hover {
-            border-color: rgba(0, 242, 254, 0.3);
-            box-shadow: 0 10px 30px -10px rgba(0, 242, 254, 0.2);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.15);
             transform: translateY(-2px);
+        }
+
+        /* Scroll Observer Fade-Up Reveal Animation */
+        .reveal-hidden {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* Custom Scrollbar */
@@ -85,47 +89,72 @@
             background: rgba(15, 23, 42, 0.6);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(0, 242, 254, 0.3);
+            background: rgba(245, 158, 11, 0.3);
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 242, 254, 0.6);
+            background: rgba(245, 158, 11, 0.6);
         }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-black flex flex-col md:flex-row">
+<body class="min-h-screen bg-[#0b0f19] text-slate-100 font-sans antialiased selection:bg-amber-400 selection:text-black flex flex-col md:flex-row relative overflow-x-hidden">
+
+    <!-- Futuristic Neural Network Canvas Background -->
+    <canvas id="neural-bg" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-60"></canvas>
 
     <!-- ── 1. Glassmorphic Sidebar ────────────────────────────────────────────── -->
-    <aside class="w-full md:w-72 glass-panel border-r border-slate-800/80 flex flex-col justify-between p-6 z-30 shrink-0 min-h-screen">
+    <aside class="relative z-10 w-full md:w-72 glass-panel border-r border-slate-800/80 flex flex-col justify-between p-6 shrink-0 min-h-screen bg-transparent">
         <div>
-            <!-- Sidebar Header / Logo -->
-            <div class="flex items-center gap-3 pb-8 mb-6 border-b border-slate-800/80">
-                <div class="w-10 h-10 rounded-xl bg-slate-950 border border-cyan-500/40 flex items-center justify-center p-1.5 shadow-glow-cyan">
-                    <img src="{% static 'img/favicon.png' %}" alt="AI-->TO-->YOU Logo" class="w-full h-full object-contain">
-                </div>
-                <div>
-                    <h1 class="font-heading font-extrabold text-lg text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-400">
-                        AI<span class="text-white">--&gt;</span>TO<span class="text-white">--&gt;</span>YOU
-                    </h1>
-                    <p class="text-[10px] tracking-wider uppercase font-semibold text-cyan-400/80">Executive Control Panel</p>
-                </div>
+            <!-- Sidebar Header / Pure SVG Logo -->
+            <div class="pb-6 mb-6 border-b border-slate-800/80">
+                <a href="{% url 'core:home' %}" target="_blank" class="block transition-transform hover:scale-[1.02]" aria-label="AI-TO-YOU Technologies Homepage">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 48" class="h-10 w-auto" aria-hidden="true">
+                        <!-- Terminal Node Icon Container -->
+                        <g transform="translate(0, 4)">
+                            <!-- Outer Terminal Frame -->
+                            <rect x="2" y="2" width="36" height="36" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.8"/>
+                            <!-- Terminal Command Prompt '>' -->
+                            <path d="M 12 14 L 20 20 L 12 26" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- Active Terminal Cursor '_' -->
+                            <rect x="22" y="23" width="7" height="2.5" rx="1" fill="#f59e0b"/>
+                            <!-- Top Active Node Dot -->
+                            <circle cx="28" cy="12" r="1.75" fill="#10b981"/>
+                        </g>
+
+                        <!-- Main Title Text: AI -->
+                        <text x="48" y="26" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="22" fill="#f8fafc" letter-spacing="-0.5">AI</text>
+
+                        <!-- Sleek Geometric Data Flow Arrow -->
+                        <g transform="translate(75, 12)">
+                            <path d="M 2 12 L 19 12 M 13 6 L 20 12 L 13 18" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="2" cy="12" r="2" fill="#f59e0b"/>
+                        </g>
+
+                        <!-- Main Title Text: YOU -->
+                        <text x="104" y="26" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="22" fill="#f8fafc" letter-spacing="-0.5">YOU</text>
+
+                        <!-- Subtitle: TECHNOLOGIES -->
+                        <text x="48" y="40" font-family="'Fira Code', 'Roboto Mono', monospace" font-weight="600" font-size="8.5" fill="#94a3b8" letter-spacing="3.6">TECHNOLOGIES</text>
+                    </svg>
+                </a>
+                <p class="text-[10px] tracking-widest uppercase font-mono font-semibold text-amber-400 mt-2 pl-1">Executive Control Panel</p>
             </div>
 
             <!-- Navigation Links -->
             <nav class="space-y-2">
                 <a href="{% url 'core:agency_admin_dashboard' %}" 
-                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-gradient-to-r from-cyan-500/20 to-purple-500/10 text-cyan-300 border border-cyan-500/30 shadow-glow-cyan">
-                    <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                    <i class="fa-solid fa-chart-line text-amber-400"></i>
                     <span>Dashboard Overview</span>
                 </a>
 
                 <a href="#inquiries-section" 
                    class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
-                    <i class="fa-solid fa-inbox text-purple-400"></i>
+                    <i class="fa-solid fa-inbox text-emerald-400"></i>
                     <span>Client Inquiries</span>
                     {% if unread_inquiries %}
-                    <span class="ml-auto bg-cyan-500/20 text-cyan-300 text-xs px-2 py-0.5 rounded-full font-bold border border-cyan-500/40">
+                    <span class="ml-auto bg-amber-400/20 text-amber-300 text-xs px-2 py-0.5 rounded-full font-bold border border-amber-400/30">
                         {{ unread_inquiries }}
                     </span>
                     {% endif %}
@@ -133,8 +162,8 @@
 
                 <a href="#ai-analytics-section" 
                    class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
-                    <i class="fa-solid fa-brain text-pink-400"></i>
-                    <span>AI Analytics & Logs</span>
+                    <i class="fa-solid fa-microchip text-slate-300"></i>
+                    <span>AI Analytics &amp; Logs</span>
                 </a>
 
                 <a href="/admin/core/portfolioproject/" target="_blank"
@@ -148,7 +177,7 @@
 
                 <a href="{% url 'core:home' %}" target="_blank"
                    class="flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all duration-200">
-                    <i class="fa-solid fa-globe text-cyan-400"></i>
+                    <i class="fa-solid fa-globe text-amber-400"></i>
                     <span>View Public Website</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-auto text-slate-500"></i>
                 </a>
@@ -159,19 +188,19 @@
         <div class="pt-6 border-t border-slate-800/80">
             <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
                 <span class="flex items-center gap-2 text-emerald-400 font-medium">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    Groq AI Active
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    AI Engine Active
                 </span>
-                <span class="text-slate-500">v2.4 Pro</span>
+                <span class="text-slate-500 font-mono">v2.4</span>
             </div>
         </div>
     </aside>
 
     <!-- ── 2. Main Content Area ────────────────────────────────────────────────── -->
-    <main class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
+    <main class="relative z-10 flex-1 flex flex-col min-w-0 overflow-x-hidden bg-transparent">
         
         <!-- Top Bar -->
-        <header class="glass-panel sticky top-0 z-20 px-6 py-4 border-b border-slate-800/80 flex items-center justify-between gap-4">
+        <header class="glass-panel sticky top-0 z-20 px-6 py-4 border-b border-slate-800/80 flex items-center justify-between gap-4 bg-transparent">
             
             <!-- Quick Search -->
             <div class="relative flex-1 max-w-md">
@@ -179,13 +208,13 @@
                 <input type="text" 
                        id="admin-quick-search"
                        placeholder="Quick search client inquiries, queries..." 
-                       class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl pl-11 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/50 transition-all">
+                       class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl pl-11 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-400 text-xs transition-colors">
             </div>
 
             <!-- Admin Profile Header Controls -->
             <div class="flex items-center gap-4">
                 <a href="{% url 'core:agency_admin_export_csv' %}" 
-                   class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all shadow-sm">
+                   class="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-amber-400 text-slate-950 hover:bg-amber-300 transition-colors shadow-sm">
                     <i class="fa-solid fa-download"></i>
                     Export CSV Report
                 </a>
@@ -194,11 +223,11 @@
 
                 <!-- Admin Profile Dropdown Badge -->
                 <div class="flex items-center gap-3">
-                    <img src="{% static 'img/dean_jc.jpg' %}" alt="Dean Juan D'Cunha" class="w-10 h-10 rounded-xl border border-cyan-500/50 object-cover shadow-md">
+                    <img src="{% static 'img/dean_jc.jpg' %}" alt="Dean Juan D'Cunha" class="w-9 h-9 rounded-xl border border-amber-400/40 object-cover shadow-md">
                     <div class="hidden md:block text-left">
                         <div class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                             {{ user.username|default:"Superuser Admin" }}
-                            <span class="bg-cyan-500/20 text-cyan-300 text-[10px] px-1.5 py-0.5 rounded font-mono border border-cyan-500/30">SUPERUSER</span>
+                            <span class="bg-amber-400/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded font-mono border border-amber-400/30">SUPERUSER</span>
                         </div>
                         <div class="text-[11px] text-slate-500">Executive Access</div>
                     </div>
@@ -217,18 +246,20 @@
         <!-- Footer -->
         <footer class="px-8 py-4 border-t border-slate-800/60 text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-2">
             <div>
-                &copy; {% now "Y" %} <span class="text-slate-400 font-semibold">AI--&gt;TO--&gt;YOU Technologies</span>. All Rights Reserved.
+                &copy; {% now "Y" %} <span class="text-slate-200 font-semibold">AI-TO-YOU Technologies</span>. All Rights Reserved.
             </div>
-            <div class="flex items-center gap-4 text-slate-500">
-                <span>Anti-Gravity OS</span>
+            <div class="flex items-center gap-4 text-slate-500 font-mono">
+                <span>Executive Dashboard</span>
                 <span>&bull;</span>
-                <span class="text-cyan-400">Dean Juan D'Cunha</span>
+                <span class="text-amber-400">Dean Juan D'Cunha</span>
             </div>
         </footer>
     </main>
 
     <!-- Core Scripts -->
     <script src="{% static 'js/admin_dashboard.js' %}"></script>
+    <script src="{% static 'js/interactions.js' %}"></script>
+    <script src="{% static 'js/neural_bg.js' %}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

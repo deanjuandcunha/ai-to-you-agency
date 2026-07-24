@@ -86,8 +86,8 @@ function initCharts() {
 
         const ctx = aiCanvas.getContext('2d');
         const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(0, 242, 254, 0.4)');
-        gradient.addColorStop(1, 'rgba(127, 0, 255, 0.05)');
+        gradient.addColorStop(0, 'rgba(245, 158, 11, 0.35)');
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
 
         new Chart(ctx, {
             type: 'line',
@@ -96,13 +96,13 @@ function initCharts() {
                 datasets: [{
                     label: 'AI Queries',
                     data: data,
-                    borderColor: '#00f2fe',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#7f00ff',
-                    pointBorderColor: '#00f2fe',
+                    borderColor: '#f59e0b',
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#f59e0b',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     fill: true,
                     backgroundColor: gradient,
                     tension: 0.35,
@@ -114,10 +114,10 @@ function initCharts() {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                        titleColor: '#00f2fe',
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#f59e0b',
                         bodyColor: '#e2e8f0',
-                        borderColor: 'rgba(0, 242, 254, 0.3)',
+                        borderColor: 'rgba(245, 158, 11, 0.3)',
                         borderWidth: 1,
                         padding: 12,
                         cornerRadius: 10,
@@ -127,12 +127,12 @@ function initCharts() {
                 scales: {
                     x: {
                         grid: { color: 'rgba(255, 255, 255, 0.04)' },
-                        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+                        ticks: { color: '#94a3b8', font: { family: 'Fira Code', size: 11 } }
                     },
                     y: {
                         beginAtZero: true,
                         grid: { color: 'rgba(255, 255, 255, 0.04)' },
-                        ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 }, precision: 0 }
+                        ticks: { color: '#94a3b8', font: { family: 'Fira Code', size: 11 }, precision: 0 }
                     }
                 }
             }
@@ -152,8 +152,8 @@ function initCharts() {
                 datasets: [{
                     data: data,
                     backgroundColor: [
-                        '#00f2fe', // New - Cyan
-                        '#a855f7', // Contacted - Purple
+                        '#f59e0b', // New - Amber
+                        '#94a3b8', // Contacted - Muted Slate
                         '#10b981', // Closed - Emerald
                     ],
                     borderColor: '#0b0f19',

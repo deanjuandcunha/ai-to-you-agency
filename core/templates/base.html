@@ -156,12 +156,44 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 242, 254, 0.6);
         }
+
+        /* Terminal Blinking Cursor */
+        .typing-cursor {
+            display: inline-block;
+            width: 7px;
+            height: 14px;
+            background-color: #fbbf24;
+            margin-left: 2px;
+            vertical-align: middle;
+            animation: cursor-blink 1s step-end infinite;
+        }
+
+        @keyframes cursor-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Scroll Observer Fade-Up Reveal Animation */
+        .reveal-hidden {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 
-<body class="relative min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950">
+<body class="relative min-h-screen flex flex-col bg-[#0b0f19] text-slate-100 antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Futuristic Neural Network Data Node Canvas Background (z-0 sits above body bg, behind z-10 main content) -->
+    <canvas id="neural-bg" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-70"></canvas>
 
     <!-- Ambient Glowing Orbs (Anti-Gravity Aesthetic) -->
     <div class="orb orb-1 animate-pulse-glow"></div>
@@ -173,23 +205,35 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
 
             <!-- Logo -->
-            <a href="{% url 'core:home' %}" class="group flex items-center space-x-3">
-                <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 via-purple-600 to-indigo-600 p-[1.5px] shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
-                    <div
-                        class="w-full h-full bg-slate-950 rounded-[10.5px] flex items-center justify-center p-1.5 overflow-hidden">
-                        <img src="{% static 'img/favicon.png' %}" alt="AI-->TO-->YOU Logo"
-                            class="w-full h-full object-contain group-hover:scale-110 transition-transform">
-                    </div>
-                </div>
-                <div class="flex flex-col">
-                    <span
-                        class="font-bold text-xl tracking-tight bg-gradient-to-r from-cyan-400 via-purple-400 to-indigo-300 bg-clip-text text-transparent font-['Outfit']">
-                        AI<span class="text-cyan-400 text-sm">--&gt;</span>TO<span
-                            class="text-purple-400 text-sm">--&gt;</span>YOU
-                    </span>
-                    <span class="text-[10px] tracking-widest text-slate-400 uppercase font-mono">Technologies</span>
-                </div>
+            <a href="{% url 'core:home' %}" class="group flex items-center transition-transform hover:scale-[1.02] active:scale-[0.98]" aria-label="AI-TO-YOU Technologies Homepage">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 48" class="h-12 sm:h-13 w-auto" aria-hidden="true">
+                    <!-- Terminal Node Icon Container -->
+                    <g transform="translate(0, 4)">
+                        <!-- Outer Terminal Frame -->
+                        <rect x="2" y="2" width="36" height="36" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.8"/>
+                        <!-- Terminal Command Prompt '>' -->
+                        <path d="M 12 14 L 20 20 L 12 26" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- Active Terminal Cursor '_' -->
+                        <rect x="22" y="23" width="7" height="2.5" rx="1" fill="#f59e0b"/>
+                        <!-- Top Active Node Dot -->
+                        <circle cx="28" cy="12" r="1.75" fill="#10b981"/>
+                    </g>
+
+                    <!-- Main Title Text: AI -->
+                    <text x="48" y="26" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="22" fill="#f8fafc" letter-spacing="-0.5">AI</text>
+
+                    <!-- Sleek Geometric Data Flow Arrow -->
+                    <g transform="translate(75, 12)">
+                        <path d="M 2 12 L 19 12 M 13 6 L 20 12 L 13 18" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="2" cy="12" r="2" fill="#f59e0b"/>
+                    </g>
+
+                    <!-- Main Title Text: YOU -->
+                    <text x="104" y="26" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="22" fill="#f8fafc" letter-spacing="-0.5">YOU</text>
+
+                    <!-- Subtitle: TECHNOLOGIES -->
+                    <text x="48" y="40" font-family="'Fira Code', 'Roboto Mono', monospace" font-weight="600" font-size="8.5" fill="#94a3b8" letter-spacing="3.6">TECHNOLOGIES</text>
+                </svg>
             </a>
 
             <!-- Navigation Links -->
@@ -227,8 +271,8 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow relative z-10">
+    <!-- Main Content Area (z-10 bg-transparent so neural-bg canvas shines through) -->
+    <main class="relative z-10 flex-grow bg-transparent">
         {% block content %}{% endblock %}
     </main>
 
@@ -239,12 +283,36 @@
 
                 <!-- Company Info -->
                 <div class="md:col-span-2 space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <span
-                            class="font-bold text-2xl tracking-tight bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent font-['Outfit']">
-                            AI--&gt;TO--&gt;YOU
-                        </span>
-                    </div>
+                    <a href="{% url 'core:home' %}" class="inline-block transition-transform hover:scale-[1.02]" aria-label="AI-TO-YOU Technologies Homepage">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 48" class="h-11 w-auto" aria-hidden="true">
+                            <!-- Terminal Node Icon Container -->
+                            <g transform="translate(0, 4)">
+                                <!-- Outer Terminal Frame -->
+                                <rect x="2" y="2" width="36" height="36" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.8"/>
+                                <!-- Terminal Command Prompt '>' -->
+                                <path d="M 12 14 L 20 20 L 12 26" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <!-- Active Terminal Cursor '_' -->
+                                <rect x="22" y="23" width="7" height="2.5" rx="1" fill="#f59e0b"/>
+                                <!-- Top Active Node Dot -->
+                                <circle cx="28" cy="12" r="1.75" fill="#10b981"/>
+                            </g>
+
+                            <!-- Main Title Text: AI -->
+                            <text x="48" y="26" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="22" fill="#f8fafc" letter-spacing="-0.5">AI</text>
+
+                            <!-- Sleek Geometric Data Flow Arrow -->
+                            <g transform="translate(75, 12)">
+                                <path d="M 2 12 L 19 12 M 13 6 L 20 12 L 13 18" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="2" cy="12" r="2" fill="#f59e0b"/>
+                            </g>
+
+                            <!-- Main Title Text: YOU -->
+                            <text x="104" y="26" font-family="'Outfit', 'Inter', system-ui, sans-serif" font-weight="800" font-size="22" fill="#f8fafc" letter-spacing="-0.5">YOU</text>
+
+                            <!-- Subtitle: TECHNOLOGIES -->
+                            <text x="48" y="40" font-family="'Fira Code', 'Roboto Mono', monospace" font-weight="600" font-size="8.5" fill="#94a3b8" letter-spacing="3.6">TECHNOLOGIES</text>
+                        </svg>
+                    </a>
                     <p class="text-sm text-slate-400 max-w-md leading-relaxed">
                         Deploying bespoke Machine Learning models, Cohere & OpenAI API orchestration engines,
                         semantic search architectures, and scalable Django frameworks directly to enterprise clients.
@@ -308,6 +376,8 @@
 
     <!-- Core Scripts -->
     <script src="{% static 'js/ai_to_you_agency.js' %}"></script>
+    <script src="{% static 'js/interactions.js' %}"></script>
+    <script src="{% static 'js/neural_bg.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 

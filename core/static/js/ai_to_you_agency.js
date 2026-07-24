@@ -234,10 +234,22 @@ function initAIConsultantDrawer() {
         const div = document.createElement('div');
         div.className = 'flex items-start space-x-2.5 animate-fade-in';
 
-        // Markdown Formatter (Bold, Bullet Points, Newlines)
-        let formatted = escapeHTML(rawMarkdownText)
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/• (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>')
+        // 1. Escape HTML for security
+        let safeText = escapeHTML(rawMarkdownText);
+
+        // 2. Parse Markdown Links [label](url) -> styled clickable anchor
+        safeText = safeText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+            const cleanUrl = url.trim();
+            const targetAttr = cleanUrl.startsWith('mailto:') ? '' : 'target="_blank" rel="noopener"';
+            return `<a href="${cleanUrl}" ${targetAttr} class="text-cyan-400 hover:text-cyan-300 underline font-semibold transition-colors">${label}</a>`;
+        });
+
+        // 3. Parse Markdown Bold & formatting
+        safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        safeText = safeText.replace(/• (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>');
+
+        // 4. Parse Newlines
+        let formatted = safeText
             .replace(/\n\n/g, '<br/><br/>')
             .replace(/\n/g, '<br/>');
 

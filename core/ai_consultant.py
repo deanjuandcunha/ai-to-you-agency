@@ -29,16 +29,20 @@ Company Profile & Core Capabilities:
 4. Enterprise QA & Web Architecture: High-reliability Django web applications, REST APIs, OWASP security auditing, and modern responsive anti-gravity UI design.
 5. Flagship B2G Case Study: ZeroGrav Civic OS — an autonomous smart-city government portal for Abu Dhabi 2027 ($4.2M estimated annual administrative savings).
 
-Founder Contact & Social Metadata:
+Founder Contact Metadata:
 - Founder: Dean Juan D'Cunha (Lead AI Engineer & Developer)
-- Official Contact Email: deanjuan@ai-to-you.online
-- Official LinkedIn Profile: https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175
-- Qualifications: Post Graduate Diploma in AI & Data Science, BTEC IT background in Dubai, UAE. Track record at MGUIF.
+- Official Email Markdown: [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)
+- Official LinkedIn Markdown: [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)
 
-Tone & Strict Formatting Rules:
+Strict Formatting & Link Rules:
 - Maintain an authoritative, professional, knowledgeable, and inviting corporate tone.
 - Keep responses concise, well-structured, and formatted with clean Markdown (bold text, bullet points).
-- When asked about contact information, reaching Dean, booking a consultation, or getting a quote, ONLY provide the verified email (deanjuan@ai-to-you.online) and official LinkedIn profile link (https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175).
+- When asked about contact information, reaching Dean, booking a consultation, or getting a quote, ONLY provide the official contact details formatted strictly as:
+  Contact Dean Juan D'Cunha — AI-->TO-->YOU Technologies
+
+  Official Email: [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)
+  LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)
+- LINK FORMATTING RULE: NEVER output raw URLs or repeat link text. Always format the LinkedIn profile link strictly as [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175) and email as [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online).
 - STRICT PROHIBITION: DO NOT mention, print, or reference any text about a "Glassmorphic Inquiry Form", placeholder forms, or missing form links.
 - STRICT PROHIBITION: DO NOT include model credits, internal engine tags, or mentions like "Groq Llama-3.3 70B" anywhere in your text replies.
 """
@@ -108,7 +112,6 @@ class AIToYouConsultant:
                 if completion.choices and len(completion.choices) > 0:
                     reply = completion.choices[0].message.content
                     if reply and reply.strip():
-                        # Sanitize any accidental internal engine tags or form mentions
                         sanitized = self._sanitize_response(reply.strip())
                         return sanitized
 
@@ -122,15 +125,13 @@ class AIToYouConsultant:
 
     def _contact_fallback(self) -> str:
         return (
-            "**Contact Dean Juan D'Cunha — AI-->TO-->YOU Technologies**\n\n"
-            "To request an enterprise AI consultation, schedule a project review, or get a custom quote, please reach out via:\n\n"
-            "• **Official Email:** [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)\n"
-            "• **LinkedIn Profile:** [https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)\n\n"
-            "We look forward to partnering with your organization."
+            "Contact Dean Juan D'Cunha — AI-->TO-->YOU Technologies\n\n"
+            "Official Email: [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)\n"
+            "LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)"
         )
 
     def _sanitize_response(self, text: str) -> str:
-        """Enforces strict prohibitions on model tags and inquiry form text."""
+        """Enforces strict prohibitions on model tags, raw duplicate URLs, and inquiry form text."""
         forbidden_strings = [
             "Groq Llama-3.3 70B",
             "Groq Llama",
@@ -145,6 +146,10 @@ class AIToYouConsultant:
         sanitized = text
         for fs in forbidden_strings:
             sanitized = sanitized.replace(fs, "")
+
+        raw_linkedin = "https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175"
+        sanitized = sanitized.replace(f"[{raw_linkedin}]({raw_linkedin})", "[LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)")
+        sanitized = sanitized.replace(f"**LinkedIn Profile:** [{raw_linkedin}]({raw_linkedin})", "LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)")
 
         return sanitized.strip()
 
@@ -173,7 +178,7 @@ class AIToYouConsultant:
                 "We specialize in deploying custom NLP interaction engines for academic institutions. "
                 "Founder Dean Juan D'Cunha engineered the **MGU & MGUIF Chatbot Architecture** for Mahatma Gandhi University, "
                 "combining Cohere/OpenAI APIs with localized web scraping pipelines to achieve an **88% reduction in routine support desk tickets**.\n\n"
-                "To discuss a custom chatbot prototype, email **deanjuan@ai-to-you.online**."
+                "To discuss a custom chatbot prototype, email [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)."
             )
         elif any(w in q for w in ["resume", "hr", "candidate", "hiring", "recruitment", "screener"]):
             return (
@@ -202,8 +207,8 @@ class AIToYouConsultant:
                 "**Dean Juan D'Cunha — Founder & Lead AI Engineer**\n\n"
                 "• **Qualifications:** Post Graduate Diploma in AI & Data Science, BTEC IT background in Dubai, UAE.\n"
                 "• **Track Record:** Key AI Developer at MGUIF; built production systems for university chatbots, HR screeners, and acoustic classification models.\n"
-                "• **Email:** [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)\n"
-                "• **LinkedIn:** [https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)"
+                "• **Official Email:** [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)\n"
+                "• **LinkedIn:** [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)"
             )
         elif any(w in q for w in ["tech", "stack", "python", "django", "tailwind"]):
             return (
@@ -217,5 +222,7 @@ class AIToYouConsultant:
                 "Thank you for contacting **AI-->TO-->YOU Technologies**!\n\n"
                 "We deliver custom Machine Learning models, Cohere & OpenAI API integrations, semantic search engines, "
                 "and scalable Django web platforms.\n\n"
-                "To get a quote or discuss your project requirements with Founder Dean Juan D'Cunha, please email **deanjuan@ai-to-you.online** or connect via [LinkedIn](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)."
+                "To get a quote or discuss your project requirements with Founder Dean Juan D'Cunha:\n\n"
+                "Official Email: [deanjuan@ai-to-you.online](mailto:deanjuan@ai-to-you.online)\n"
+                "LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/dean-juan-d-cunha-2087b1175)"
             )

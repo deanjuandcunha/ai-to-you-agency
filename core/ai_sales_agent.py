@@ -223,7 +223,7 @@ class ZeroGravSalesAgent:
                 f"executive@zerograv.systems for a personalized response."
             ),
             "highlights": [
-                "Email: executive@zerograv.systems",
+                "Email: deanjuan@ai-to-you.online",
                 "Response time: within 24 business hours",
                 "Request an executive briefing via the contact form",
             ],

@@ -52,7 +52,7 @@ function initAIConsultantDrawer() {
                         <h4 class="text-sm font-bold text-slate-100 font-['Outfit']">AI--&gt;TO--&gt;YOU Consultant</h4>
                         <div class="flex items-center space-x-1.5 text-[10px] text-cyan-400">
                             <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-                            <span class="font-mono">Groq Llama-3.3 70B &bull; Real-Time</span>
+                            <span class="font-mono">Online &bull; Real-Time</span>
                         </div>
                     </div>
                 </div>
@@ -78,7 +78,7 @@ function initAIConsultantDrawer() {
                         <i class="fa-solid fa-robot"></i>
                     </div>
                     <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-slate-800 text-slate-200 leading-relaxed max-w-[85%]">
-                        Welcome to <strong>AI--&gt;TO--&gt;YOU Technologies</strong>! Powered by our Groq AI engine (Llama 3.3 70B). Ask me about custom university NLP engines, HR screening algorithms, acoustic signal analysis, or scheduling a consultation with founder <strong>Dean Juan D'Cunha</strong>.
+                        Welcome to <strong>AI--&gt;TO--&gt;YOU Technologies</strong>! Ask me about custom university NLP engines, HR screening algorithms, acoustic signal analysis, or reaching founder <strong>Dean Juan D'Cunha</strong>.
                     </div>
                 </div>
             </div>

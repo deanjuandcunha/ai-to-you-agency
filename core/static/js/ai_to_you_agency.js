@@ -25,69 +25,67 @@ function initAIConsultantDrawer() {
     const container = document.getElementById('ai-chat-drawer-container');
     if (!container) return;
 
-    // Inject Glassmorphic Chat Drawer Markup into DOM
+    // Inject Glassmorphic Chat Drawer Markup into DOM matching dark engineering design system
     container.innerHTML = `
         <!-- Floating FAB Button -->
-        <button id="ai-fab-btn" aria-label="Open AI Consultant Chat" class="fixed bottom-6 right-6 z-50 flex items-center space-x-3 px-5 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 via-purple-500 to-indigo-600 text-slate-950 font-bold shadow-2xl shadow-cyan-500/30 hover:scale-105 active:scale-95 transition-all duration-300 group">
-            <span class="relative flex h-3 w-3">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-950 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-3 w-3 bg-slate-950"></span>
+        <button id="ai-fab-btn" aria-label="Open AI Consultant Chat" class="fixed bottom-6 right-6 z-50 flex items-center space-x-2.5 px-5 py-3.5 rounded-full bg-slate-900 border border-slate-800 hover:border-amber-500/50 hover:bg-slate-800 text-slate-100 font-semibold shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 group">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
             </span>
-            <i class="fa-solid fa-robot text-lg group-hover:rotate-12 transition-transform"></i>
-            <span class="text-xs uppercase tracking-wider hidden sm:inline">Ask AI Consultant</span>
+            <i class="fa-solid fa-terminal text-amber-400 text-sm group-hover:rotate-12 transition-transform"></i>
+            <span class="text-xs font-mono uppercase tracking-wider hidden sm:inline text-slate-200">Consult AI</span>
         </button>
 
         <!-- Glassmorphic Chat Drawer Window -->
-        <div id="ai-chat-drawer" class="fixed bottom-24 right-6 z-50 w-[92vw] sm:w-[420px] max-h-[600px] h-[80vh] glass-panel rounded-3xl border border-cyan-500/30 shadow-2xl flex flex-col hidden transition-all duration-300 transform scale-95 opacity-0 origin-bottom-right overflow-hidden">
+        <div id="ai-chat-drawer" class="fixed bottom-24 right-6 z-50 w-[92vw] sm:w-[420px] max-h-[600px] h-[80vh] bg-slate-900/95 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-2xl flex flex-col hidden transition-all duration-300 transform scale-95 opacity-0 origin-bottom-right overflow-hidden">
             
             <!-- Header -->
-            <div class="px-6 py-4 bg-slate-950/80 border-b border-slate-800/80 flex items-center justify-between">
+            <div class="px-5 py-4 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 p-[1.5px]">
-                        <div class="w-full h-full bg-slate-950 rounded-[10.5px] flex items-center justify-center text-cyan-400 text-sm">
-                            <i class="fa-solid fa-brain"></i>
-                        </div>
+                    <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-400 text-xs">
+                        <i class="fa-solid fa-terminal"></i>
                     </div>
                     <div>
-                        <h4 class="text-sm font-bold text-slate-100 font-['Outfit']">AI--&gt;TO--&gt;YOU Consultant</h4>
-                        <div class="flex items-center space-x-1.5 text-[10px] text-cyan-400">
-                            <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-                            <span class="font-mono">Online &bull; Real-Time</span>
+                        <h4 class="text-sm font-bold text-slate-100 font-['Outfit']">AI-TO-YOU Consultant</h4>
+                        <div class="flex items-center space-x-1.5 text-[10px] text-emerald-400 font-mono">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>Online &bull; Real-Time</span>
                         </div>
                     </div>
                 </div>
 
-                <button id="ai-drawer-close-btn" class="w-8 h-8 rounded-lg bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 flex items-center justify-center transition-colors">
+                <button id="ai-drawer-close-btn" class="w-8 h-8 rounded-xl bg-slate-900 text-slate-400 hover:text-slate-100 hover:bg-slate-800 border border-slate-800 flex items-center justify-center transition-colors">
                     <i class="fa-solid fa-xmark text-sm"></i>
                 </button>
             </div>
 
             <!-- Quick Action Suggestion Pills -->
-            <div class="px-4 py-2 bg-slate-900/60 border-b border-slate-800/60 flex items-center space-x-2 overflow-x-auto text-[11px] scrollbar-none">
-                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-800/80 text-cyan-300 hover:bg-cyan-950 border border-cyan-500/30 transition-colors">University Chatbot</button>
-                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-800/80 text-purple-300 hover:bg-purple-950 border border-purple-500/30 transition-colors">HR Resume Screener</button>
-                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-800/80 text-indigo-300 hover:bg-indigo-950 border border-indigo-500/30 transition-colors">Marine Sound AI</button>
-                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-colors">Tech Stack</button>
+            <div class="px-4 py-2.5 bg-slate-950/60 border-b border-slate-800 flex items-center space-x-2 overflow-x-auto text-[11px] scrollbar-none font-mono">
+                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:text-amber-400 hover:bg-slate-800 border border-slate-800 transition-colors">University Chatbot</button>
+                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:text-amber-400 hover:bg-slate-800 border border-slate-800 transition-colors">HR Resume Screener</button>
+                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:text-amber-400 hover:bg-slate-800 border border-slate-800 transition-colors">Marine Sound AI</button>
+                <button class="quick-prompt-pill whitespace-nowrap px-3 py-1 rounded-full bg-slate-900 text-slate-300 hover:text-amber-400 hover:bg-slate-800 border border-slate-800 transition-colors">Tech Stack</button>
             </div>
 
             <!-- Chat Messages Log Container -->
             <div id="ai-chat-messages" class="flex-grow p-4 overflow-y-auto space-y-4 text-xs">
                 <!-- Initial Welcome Greeting -->
                 <div class="flex items-start space-x-2.5">
-                    <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs shrink-0 mt-1">
-                        <i class="fa-solid fa-robot"></i>
+                    <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 flex items-center justify-center text-xs shrink-0 mt-1">
+                        <i class="fa-solid fa-terminal"></i>
                     </div>
-                    <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-slate-800 text-slate-200 leading-relaxed max-w-[85%]">
-                        Welcome to <strong>AI--&gt;TO--&gt;YOU Technologies</strong>! Ask me about custom university NLP engines, HR screening algorithms, acoustic signal analysis, or reaching founder <strong>Dean Juan D'Cunha</strong>.
+                    <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl rounded-tl-none text-slate-200 leading-relaxed max-w-[85%]">
+                        Welcome to <strong>AI-TO-YOU Technologies</strong>! Ask me about custom university NLP engines, HR screening algorithms, acoustic signal analysis, or contacting founder <strong>Dean Juan D'Cunha</strong>.
                     </div>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <form id="ai-chat-form" class="p-3 bg-slate-950/90 border-t border-slate-800/80 flex items-center space-x-2">
+            <form id="ai-chat-form" class="p-3 bg-slate-950/95 border-t border-slate-800 flex items-center space-x-2">
                 <input type="text" id="ai-chat-input" placeholder="Ask AI-TO-YOU Consultant..." autocomplete="off"
-                       class="flex-grow px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-cyan-400 transition-colors">
-                <button type="submit" id="ai-chat-send-btn" class="w-9 h-9 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 flex items-center justify-center shrink-0 transition-colors shadow-lg shadow-cyan-500/20">
+                       class="flex-grow px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400 transition-colors">
+                <button type="submit" id="ai-chat-send-btn" class="w-9 h-9 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center shrink-0 transition-colors shadow-sm font-semibold">
                     <i class="fa-solid fa-paper-plane text-xs"></i>
                 </button>
             </form>
@@ -183,7 +181,7 @@ function initAIConsultantDrawer() {
                 const suggestions = result.data?.suggested_actions || [];
                 appendAIBubble(aiReply, suggestions);
             } else {
-                appendAIBubble("Apologies, I encountered a temporary connection glitch. Please submit your question again or contact Founder Dean Juan D'Cunha via the inquiry form.");
+                appendAIBubble("Apologies, I encountered a temporary connection glitch. Please submit your question again or reach out to Founder Dean Juan D'Cunha via email.");
             }
         } catch (err) {
             removeBubble(typingIndicatorId);
@@ -197,10 +195,10 @@ function initAIConsultantDrawer() {
         const div = document.createElement('div');
         div.className = 'flex items-start justify-end space-x-2.5 animate-fade-in';
         div.innerHTML = `
-            <div class="p-3.5 rounded-2xl rounded-tr-none bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 text-slate-100 leading-relaxed max-w-[85%] shadow-lg">
+            <div class="p-3.5 rounded-2xl rounded-tr-none bg-amber-400/10 border border-amber-400/20 text-slate-100 leading-relaxed max-w-[85%] shadow-sm text-xs">
                 ${escapeHTML(text)}
             </div>
-            <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs shrink-0 mt-1">
+            <div class="w-7 h-7 rounded-lg bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center text-xs shrink-0 mt-1">
                 <i class="fa-solid fa-user"></i>
             </div>
         `;
@@ -213,12 +211,12 @@ function initAIConsultantDrawer() {
         div.id = id;
         div.className = 'flex items-start space-x-2.5 animate-fade-in';
         div.innerHTML = `
-            <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs shrink-0 mt-1">
-                <i class="fa-solid fa-brain animate-pulse"></i>
+            <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 flex items-center justify-center text-xs shrink-0 mt-1">
+                <i class="fa-solid fa-terminal animate-pulse"></i>
             </div>
-            <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-cyan-500/30 text-cyan-300 text-xs flex items-center space-x-2">
-                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                <span class="font-medium tracking-wide">AI-TO-YOU is typing...</span>
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl rounded-tl-none text-amber-400 text-xs flex items-center space-x-2 font-mono">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="tracking-wide">AI-TO-YOU is processing...</span>
             </div>
         `;
         chatMessages.appendChild(div);
@@ -241,7 +239,7 @@ function initAIConsultantDrawer() {
         safeText = safeText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
             const cleanUrl = url.trim();
             const targetAttr = cleanUrl.startsWith('mailto:') ? '' : 'target="_blank" rel="noopener"';
-            return `<a href="${cleanUrl}" ${targetAttr} class="text-cyan-400 hover:text-cyan-300 underline font-semibold transition-colors">${label}</a>`;
+            return `<a href="${cleanUrl}" ${targetAttr} class="text-amber-400 hover:text-amber-300 underline font-semibold transition-colors">${label}</a>`;
         });
 
         // 3. Parse Markdown Bold & formatting
@@ -256,17 +254,17 @@ function initAIConsultantDrawer() {
         let suggestionsHTML = '';
         if (suggestions && suggestions.length > 0) {
             suggestionsHTML = `
-                <div class="mt-3 pt-2 border-t border-slate-800/80 flex flex-wrap gap-1.5">
-                    ${suggestions.map(s => `<button class="ai-suggested-btn text-[10px] px-2.5 py-1 rounded-md bg-slate-900 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-950 transition-colors">${escapeHTML(s)}</button>`).join('')}
+                <div class="mt-3 pt-2 border-t border-slate-800 flex flex-wrap gap-1.5">
+                    ${suggestions.map(s => `<button class="ai-suggested-btn text-[10px] font-mono px-2.5 py-1 rounded-md bg-slate-950 text-amber-400 border border-slate-800 hover:bg-slate-900 transition-colors">${escapeHTML(s)}</button>`).join('')}
                 </div>
             `;
         }
 
         div.innerHTML = `
-            <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs shrink-0 mt-1">
-                <i class="fa-solid fa-robot"></i>
+            <div class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 flex items-center justify-center text-xs shrink-0 mt-1">
+                <i class="fa-solid fa-terminal"></i>
             </div>
-            <div class="glass-panel p-3.5 rounded-2xl rounded-tl-none border border-slate-800 text-slate-200 leading-relaxed max-w-[85%]">
+            <div class="bg-slate-900/90 border border-slate-800 p-3.5 rounded-2xl rounded-tl-none text-slate-200 leading-relaxed max-w-[85%] text-xs">
                 <div>${formatted}</div>
                 ${suggestionsHTML}
             </div>

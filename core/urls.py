@@ -14,6 +14,7 @@ urlpatterns = [
 
     # ── Executive Admin Dashboard Routes ─────────────────────────────────
     path("agency-admin/", admin_views.dashboard_overview_view, name="agency_admin_dashboard"),
+    path("agency-admin/logout/", admin_views.agency_admin_logout_view, name="agency_admin_logout"),
     path("agency-admin/inquiry/update/<int:pk>/", admin_views.update_inquiry_status_view, name="agency_admin_update_inquiry"),
     path("agency-admin/export-csv/", admin_views.export_inquiries_csv_view, name="agency_admin_export_csv"),
 

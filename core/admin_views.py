@@ -11,11 +11,12 @@ import csv
 import json
 from datetime import datetime, timedelta
 
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Count
 from django.db.models.functions import TruncDate
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
@@ -40,6 +41,15 @@ def superuser_required(view_func):
 # ── Dashboard Views & Endpoints ──────────────────────────────────────────────
 
 @superuser_required
+def agency_admin_logout_view(request):
+    """
+    Logs out the executive admin superuser and redirects back to the public homepage.
+    """
+    logout(request)
+    return redirect("core:home")
+
+
+@superuser_required
 @require_GET
 def dashboard_overview_view(request):
     """
@@ -52,8 +62,8 @@ def dashboard_overview_view(request):
     ai_conversations_count = AIChatLog.objects.count()
     active_projects_count = PortfolioProject.objects.count()
 
-    # 2. Recent Records
-    recent_inquiries = ClientInquiry.objects.all().order_by("-timestamp")[:10]
+    # 2. Recent Records (Preserve up to 50 recent & historical inquiries)
+    recent_inquiries = ClientInquiry.objects.all().order_by("-timestamp")[:50]
     recent_ai_chats = AIChatLog.objects.all().order_by("-timestamp")[:15]
 
     # 3. Chart 1: AI Query Volume (Last 7 Days)

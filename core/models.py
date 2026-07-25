@@ -127,6 +127,19 @@ class AIChatLog(models.Model):
         ordering = ["-timestamp"]
         verbose_name_plural = "AI Chat Logs"
 
+    @property
+    def clean_ai_snippet(self):
+        """Returns clean text by stripping raw markdown symbols like **, [label](url), bullet points."""
+        import re
+        text = self.ai_response or ""
+        # Strip markdown links [label](url) -> label
+        text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+        # Strip markdown bold **text** -> text
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+        # Strip markdown list bullets
+        text = re.sub(r'^[•\-\*]\s*', '', text, flags=re.MULTILINE)
+        return text.strip()
+
     def __str__(self):
         return f"AI Query at {self.timestamp:%Y-%m-%d %H:%M:%S} ({self.response_time_ms}ms)"
 

@@ -1,11 +1,12 @@
 /**
- * AI-->TO-->YOU Technologies — Executive Admin Dashboard JavaScript
+ * AI-TO-YOU Technologies — Executive Admin Dashboard JavaScript
  * 
  * Handles:
  * 1. Chart.js rendering for AI Query Volume & Inquiry Status Breakdown
  * 2. Real-time AJAX status toggle & DOM button re-rendering for Client Inquiries
- * 3. Dynamic search & client-side filtering for inquiry records and live query feed
- * 4. Toast notifications & interactive UI feedback
+ * 3. Expandable message drawers for full client inquiry messages
+ * 4. Status filter tabs (All, New, Contacted, Closed) and quick search filtering
+ * 5. Toast notifications & interactive UI feedback
  */
 
 let statusChartInstance = null;
@@ -13,6 +14,8 @@ let statusChartInstance = null;
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
     initStatusUpdateHandlers();
+    initInquiryMessageToggles();
+    initStatusFilterTabs();
     initSearchFilters();
 });
 
@@ -50,16 +53,16 @@ function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     const isSuccess = type === 'success';
     
-    toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl backdrop-blur-md shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 border ${
+    toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl backdrop-blur-md shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 border font-mono text-xs ${
         isSuccess 
-            ? 'bg-slate-900/90 border-cyan-500/40 text-cyan-300 shadow-cyan-500/10' 
+            ? 'bg-slate-900/90 border-amber-500/40 text-amber-300 shadow-amber-500/10' 
             : 'bg-slate-900/90 border-rose-500/40 text-rose-300 shadow-rose-500/10'
     }`;
     
-    const iconClass = isSuccess ? 'fa-circle-check text-cyan-400' : 'fa-circle-exclamation text-rose-400';
+    const iconClass = isSuccess ? 'fa-circle-check text-amber-400' : 'fa-circle-exclamation text-rose-400';
     toast.innerHTML = `
-        <i class="fa-solid ${iconClass} text-lg"></i>
-        <span class="text-sm font-medium tracking-wide">${message}</span>
+        <i class="fa-solid ${iconClass} text-base"></i>
+        <span class="font-medium tracking-wide">${message}</span>
     `;
 
     container.appendChild(toast);
@@ -229,7 +232,12 @@ function initStatusUpdateHandlers() {
 
             if (response.ok && data.ok) {
                 const row = document.getElementById(`inquiry-row-${inquiryId}`);
+                const detailRow = document.getElementById(`msg-row-${inquiryId}`);
+                
                 if (row) {
+                    row.dataset.status = data.new_status;
+                    if (detailRow) detailRow.dataset.status = data.new_status;
+
                     // 1. Update Status Badge
                     const badgeContainer = row.querySelector('.js-status-badge');
                     if (badgeContainer) {
@@ -244,10 +252,12 @@ function initStatusUpdateHandlers() {
                     }
                 }
 
-                // 3. Update Top Unread Metric Card
+                // 3. Update Top Unread Metric Card & Filter Count Badges
                 const unreadCard = document.getElementById('metric-unread-count');
-                if (unreadCard && data.unread_count !== undefined) {
-                    unreadCard.textContent = data.unread_count;
+                const filterNewBadge = document.getElementById('count-filter-new');
+                if (data.unread_count !== undefined) {
+                    if (unreadCard) unreadCard.textContent = data.unread_count;
+                    if (filterNewBadge) filterNewBadge.textContent = data.unread_count;
                 }
 
                 // 4. Update Doughnut Chart in real-time if chart instance exists
@@ -277,19 +287,84 @@ function initStatusUpdateHandlers() {
 }
 
 /**
+ * ── Helper: Expandable Inquiry Message Drawer Toggles
+ */
+function initInquiryMessageToggles() {
+    const tableBody = document.getElementById('inquiries-table-body');
+    if (!tableBody) return;
+
+    tableBody.addEventListener('click', (e) => {
+        // Handle trigger buttons/snippets
+        const trigger = e.target.closest('.js-toggle-msg-trigger');
+        if (trigger) {
+            const targetId = trigger.dataset.target;
+            const detailRow = document.getElementById(targetId);
+            if (detailRow) {
+                detailRow.classList.toggle('hidden');
+            }
+            return;
+        }
+
+        // Handle close drawer buttons
+        const closeBtn = e.target.closest('.js-close-msg-btn');
+        if (closeBtn) {
+            const targetId = closeBtn.dataset.target;
+            const detailRow = document.getElementById(targetId);
+            if (detailRow) {
+                detailRow.classList.add('hidden');
+            }
+        }
+    });
+}
+
+/**
+ * ── Helper: Status Filter Tabs (All, New, Contacted, Closed)
+ */
+function initStatusFilterTabs() {
+    const tabs = document.querySelectorAll('.js-inquiry-filter-tab');
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const selectedStatus = tab.dataset.status;
+
+            // Highlight active tab button
+            tabs.forEach(t => {
+                t.className = 'js-inquiry-filter-tab px-3 py-1 rounded-lg bg-slate-900 text-slate-400 hover:text-amber-400 border border-slate-800 transition-all';
+            });
+            tab.className = 'js-inquiry-filter-tab px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-bold transition-all';
+
+            // Filter inquiry rows
+            const mainRows = document.querySelectorAll('.inquiry-main-row');
+            mainRows.forEach(row => {
+                const rowStatus = row.dataset.status;
+                const detailRow = document.getElementById(`msg-row-${row.id.replace('inquiry-row-', '')}`);
+
+                if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                    if (detailRow) detailRow.classList.add('hidden');
+                }
+            });
+        });
+    });
+}
+
+/**
  * ── Helper: Get Status Badge CSS Classes
  */
 function getStatusBadgeClasses(status) {
-    const base = "js-status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border shadow-sm transition-all ";
+    const base = "js-status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold transition-all ";
     switch (status) {
         case 'new':
-            return base + "bg-cyan-500/10 text-cyan-300 border-cyan-500/30 shadow-cyan-500/10 animate-pulse";
+            return base + "bg-amber-400/10 text-amber-400 border border-amber-400/20";
         case 'contacted':
-            return base + "bg-purple-500/10 text-purple-300 border-purple-500/30 shadow-purple-500/10";
+            return base + "bg-slate-800 text-slate-300 border border-slate-700";
         case 'closed':
-            return base + "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 shadow-emerald-500/10";
+            return base + "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20";
         default:
-            return base + "bg-slate-700/30 text-slate-400 border-slate-700/50";
+            return base + "bg-slate-800 text-slate-400 border border-slate-700";
     }
 }
 
@@ -297,7 +372,7 @@ function getStatusBadgeClasses(status) {
  * ── Helper: Get Status Badge Inner HTML
  */
 function getStatusBadgeInnerHtml(status, statusDisplay) {
-    let iconHtml = '<i class="fa-solid fa-circle text-[8px]"></i>';
+    let iconHtml = '<i class="fa-solid fa-circle text-[8px] animate-pulse"></i>';
     if (status === 'contacted') {
         iconHtml = '<i class="fa-solid fa-user-check text-[8px]"></i>';
     } else if (status === 'closed') {
@@ -310,17 +385,23 @@ function getStatusBadgeInnerHtml(status, statusDisplay) {
  * ── Helper: Dynamic HTML Generator for Action Buttons
  */
 function generateQuickActionButtonsHtml(inquiryId, status, updateUrl) {
-    let html = '';
+    let html = `
+        <button class="js-toggle-msg-trigger px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-400/10 text-amber-400 hover:bg-amber-400/20 border border-amber-400/20 transition-all"
+                data-target="msg-row-${inquiryId}"
+                title="View Full Inquiry Message">
+            <i class="fa-solid fa-envelope-open text-xs mr-1"></i> Message
+        </button>
+    `;
 
     // Contacted Button
     if (status !== 'contacted') {
         html += `
-            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30 transition-all"
+            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800 transition-all"
                     data-inquiry-id="${inquiryId}"
                     data-target-status="contacted"
                     data-update-url="${updateUrl}"
                     title="Mark as Contacted">
-                <i class="fa-solid fa-paper-plane mr-1"></i> Contacted
+                <i class="fa-solid fa-paper-plane mr-1 text-amber-400"></i> Contacted
             </button>
         `;
     }
@@ -328,7 +409,7 @@ function generateQuickActionButtonsHtml(inquiryId, status, updateUrl) {
     // Close Button
     if (status !== 'closed') {
         html += `
-            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 border border-emerald-500/30 transition-all"
+            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20 border border-emerald-400/20 transition-all"
                     data-inquiry-id="${inquiryId}"
                     data-target-status="closed"
                     data-update-url="${updateUrl}"
@@ -341,7 +422,7 @@ function generateQuickActionButtonsHtml(inquiryId, status, updateUrl) {
     // Reset to New Button
     if (status !== 'new') {
         html += `
-            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition-all"
+            <button class="js-status-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-500 hover:text-slate-200 border border-slate-800 transition-all"
                     data-inquiry-id="${inquiryId}"
                     data-target-status="new"
                     data-update-url="${updateUrl}"
@@ -365,12 +446,16 @@ function initSearchFilters() {
         const term = e.target.value.toLowerCase().trim();
 
         // 1. Filter Inquiries Table Rows
-        document.querySelectorAll('#inquiries-table-body tr').forEach(row => {
-            const text = row.textContent.toLowerCase();
+        document.querySelectorAll('#inquiries-table-body .inquiry-main-row').forEach(row => {
+            const rowId = row.id.replace('inquiry-row-', '');
+            const detailRow = document.getElementById(`msg-row-${rowId}`);
+            const text = (row.textContent + ' ' + (detailRow ? detailRow.textContent : '')).toLowerCase();
+
             if (text.includes(term)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
+                if (detailRow) detailRow.classList.add('hidden');
             }
         });
 

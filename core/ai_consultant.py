@@ -137,7 +137,6 @@ class AIToYouConsultant:
             "Groq Llama",
             "Llama-3.3 70B",
             "Llama 3.3 70B",
-            "Llama-3.1-8b-instant",
             "Glassmorphic Inquiry Form",
             "glassmorphic inquiry form",
             "inquiry form below",
